@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title translate="yes">Task Manager</title>
+    <link href="static/taskmgr.css" rel="stylesheet">
+    <style>
+        /* Critical layout rules — prevents flash when saved layout is 'top' */
+        body.menu-top .sidebar { display: none !important; }
+        body.menu-top .sidebar-overlay { display: none !important; }
+        body.menu-top .hamburger-btn { display: none !important; }
+        body.menu-top .main-content { margin-left: 0 !important; }
+        body.menu-top .app-footer { margin-left: 0 !important; }
+        body.menu-top .top-menu-row { display: block !important; }
+    </style>
+    <script src="../base1/cockpit.js"></script>
+    <script src="static/taskmgr.js"></script>
+</head>
+<body class="menu-side">
+    <a href="#main-content" class="skip-link" translate="yes">Skip to main content</a>
+
+    <nav class="top-nav">
+        <div class="top-nav-left">
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle sidebar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                </div>
+                <span translate="yes">Task Manager</span>
+            </div>
+        </div>
+        <div class="top-nav-right">
+            <button class="icon-btn" id="refreshBtn" aria-label="Refresh" title="Refresh">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <polyline points="1 20 1 14 7 14"></polyline>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+            </button>
+            <button class="icon-btn" id="layoutBtn" aria-label="Toggle layout" title="Toggle menu layout">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                </svg>
+            </button>
+            <button class="icon-btn" id="langBtn" aria-label="Switch language" title="Switch language">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+            </button>
+            <button class="icon-btn" id="themeBtn" aria-label="Toggle theme">
+                <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+            <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <div class="top-menu-row" id="topMenuRow">
+        <div class="top-menu-bar" id="topMenuBar"></div>
+    </div>
+
+    <div class="app-container">
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <div class="menu-section">
+                    <div class="menu-section-title" translate="yes">Overview</div>
+                    <div class="menu-item active" data-section="dashboard">
+                        <span class="menu-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="14" width="7" height="7"></rect>
+                                <rect x="3" y="14" width="7" height="7"></rect>
+                            </svg>
+                        </span>
+                        <span class="menu-label" translate="yes">Dashboard</span>
+                    </div>
+                    <div class="menu-item" data-section="processes">
+                        <span class="menu-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                                <rect x="9" y="9" width="6" height="6"></rect>
+                                <line x1="9" y1="1" x2="9" y2="4"></line>
+                                <line x1="15" y1="1" x2="15" y2="4"></line>
+                                <line x1="9" y1="20" x2="9" y2="23"></line>
+                                <line x1="15" y1="20" x2="15" y2="23"></line>
+                                <line x1="20" y1="9" x2="23" y2="9"></line>
+                                <line x1="20" y1="14" x2="23" y2="14"></line>
+                                <line x1="1" y1="9" x2="4" y2="9"></line>
+                                <line x1="1" y1="14" x2="4" y2="14"></line>
+                            </svg>
+                        </span>
+                        <span class="menu-label" translate="yes">Processes</span>
+                    </div>
+                </div>
+                <div class="menu-section">
+                    <div class="menu-section-title" translate="yes">Resources</div>
+                    <div class="menu-item" data-section="cpu">
+                        <span class="menu-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                                <rect x="9" y="9" width="6" height="6"></rect>
+                                <line x1="9" y1="1" x2="9" y2="4"></line>
+                                <line x1="15" y1="1" x2="15" y2="4"></line>
+                                <line x1="9" y1="20" x2="9" y2="23"></line>
+                                <line x1="15" y1="20" x2="15" y2="23"></line>
+                                <line x1="20" y1="9" x2="23" y2="9"></line>
+                                <line x1="20" y1="14" x2="23" y2="14"></line>
+                                <line x1="1" y1="9" x2="4" y2="9"></line>
+                                <line x1="1" y1="14" x2="4" y2="14"></line>
+                            </svg>
+                        </span>
+                        <span class="menu-label" translate="yes">CPU</span>
+                    </div>
+                    <div class="menu-item" data-section="memory">
+                        <span class="menu-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 19v-8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8"></path>
+                                <path d="M6 19h12"></path>
+                                <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                <line x1="10" y1="11" x2="10" y2="15"></line>
+                                <line x1="14" y1="11" x2="14" y2="15"></line>
+                            </svg>
+                        </span>
+                        <span class="menu-label" translate="yes">Memory</span>
+                    </div>
+                    <div class="menu-item" data-section="disk">
+                        <span class="menu-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="12" x2="2" y2="12"></line>
+                                <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+                                <line x1="6" y1="16" x2="6.01" y2="16"></line>
+                                <line x1="10" y1="16" x2="10.01" y2="16"></line>
+                            </svg>
+                        </span>
+                        <span class="menu-label" translate="yes">Disk</span>
+                    </div>
+                    <div class="menu-item" data-section="network">
+                        <span class="menu-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                                <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                                <line x1="12" y1="20" x2="12.01" y2="20"></line>
+                            </svg>
+                        </span>
+                        <span class="menu-label" translate="yes">Network</span>
+                    </div>
+                    <div class="menu-item" data-section="gpu">
+                        <span class="menu-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect>
+                                <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01"></path>
+                                <line x1="6" y1="14" x2="18" y2="14"></line>
+                            </svg>
+                        </span>
+                        <span class="menu-label" translate="yes">GPU</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content" id="main-content">
+            <section class="content-section active" id="sec-dashboard">
+                <div class="section-header">
+                    <h1 translate="yes">System Overview</h1>
+                    <div class="header-actions">
+                        <span class="update-indicator" id="updateIndicator">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-7.36L23 10"></path>
+                            </svg>
+                            <span translate="yes">Live</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-cpu">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                                <rect x="9" y="9" width="6" height="6"></rect>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label" translate="yes">CPU Usage</div>
+                            <div class="stat-value" id="cpuUsageValue">0%</div>
+                        </div>
+                        <div class="stat-chart" id="cpuMiniChart"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-mem">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 19v-8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8"></path>
+                                <path d="M6 19h12"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label" translate="yes">Memory</div>
+                            <div class="stat-value" id="memUsageValue">0 / 0 GB</div>
+                        </div>
+                        <div class="stat-chart" id="memMiniChart"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-swap">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label" translate="yes">Swap</div>
+                            <div class="stat-value" id="swapUsageValue">0 / 0 GB</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-proc">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                                <rect x="9" y="9" width="6" height="6"></rect>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-label" translate="yes">Processes</div>
+                            <div class="stat-value" id="procCountValue">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 translate="yes">CPU History</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="cpuHistoryChart" class="svg-chart"></div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 translate="yes">Memory History</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="memHistoryChart" class="svg-chart"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 translate="yes">Top Processes by CPU</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th translate="yes">PID</th>
+                                    <th translate="yes">Name</th>
+                                    <th translate="yes">User</th>
+                                    <th translate="yes">CPU %</th>
+                                    <th translate="yes">Memory %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topCpuTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="sec-processes">
+                <div class="section-header">
+                    <h1 translate="yes">Processes</h1>
+                    <div class="header-actions">
+                        <div class="search-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" id="processSearch" placeholder="Search processes..." translate="placeholder">
+                        </div>
+                        <select class="filter-select" id="processSort">
+                            <option value="cpu" translate="yes">Sort by CPU</option>
+                            <option value="mem" translate="yes">Sort by Memory</option>
+                            <option value="pid" translate="yes">Sort by PID</option>
+                            <option value="name" translate="yes">Sort by Name</option>
+                        </select>
+                        <div class="col-settings-wrap">
+                            <button class="icon-btn" id="colSettingsBtn" aria-label="Column settings" title="Column settings">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                                </svg>
+                            </button>
+                            <div class="col-settings-dropdown" id="colSettingsDropdown"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="process-toolbar">
+                    <div class="process-filters">
+                        <label class="filter-label">
+                            <input type="checkbox" id="showKernelThreads" checked>
+                            <span translate="yes">Show kernel threads</span>
+                        </label>
+                        <label class="filter-label">
+                            <input type="checkbox" id="showUserProcesses" checked>
+                            <span translate="yes">Show user processes</span>
+                        </label>
+                        <span class="process-count" id="processCount"></span>
+                    </div>
+                    <div class="process-actions">
+                        <button class="btn btn-danger" id="killProcessBtn" translate="yes" style="display:none">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;margin-right:6px;">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                            </svg>
+                            <span id="killProcessLabel">End Process</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="process-scroll-wrap">
+                        <table class="data-table process-table" id="processTable">
+                            <thead id="processTableHead"></thead>
+                            <tbody id="processTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="sec-cpu">
+                <div class="section-header">
+                    <h1 translate="yes">CPU</h1>
+                </div>
+
+                <div class="cpu-info" id="cpuInfo">
+                    <div class="cpu-model" id="cpuModel">Loading...</div>
+                    <div class="cpu-cores" id="cpuCores"></div>
+                    <div class="hw-info-grid">
+                        <div class="hw-info-item"><span class="hw-label" translate="yes">Vendor</span><span class="hw-value" id="cpuVendor">--</span></div>
+                        <div class="hw-info-item"><span class="hw-label" translate="yes">Architecture</span><span class="hw-value" id="cpuArch">--</span></div>
+                        <div class="hw-info-item"><span class="hw-label" translate="yes">Stepping</span><span class="hw-value" id="cpuStepping">--</span></div>
+                        <div class="hw-info-item"><span class="hw-label" translate="yes">CPU MHz</span><span class="hw-value" id="cpuMhz">--</span></div>
+                        <div class="hw-info-item"><span class="hw-label" translate="yes">BogoMIPS</span><span class="hw-value" id="cpuBogomips">--</span></div>
+                        <div class="hw-info-item"><span class="hw-label" translate="yes">Power</span><span class="hw-value" id="cpuPower">--</span></div>
+                    </div>
+                    <div class="isa-tags" id="cpuISA"></div>
+                </div>
+
+                <div class="cpu-grid" id="cpuGrid"></div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 translate="yes">CPU Usage History</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="cpu-history-grid" id="cpuHistoryGrid"></div>
+                    </div>
+                </div>
+
+                <div class="cpu-load-avg">
+                    <div class="load-item">
+                        <span class="load-label" translate="yes">Load Average (1 min)</span>
+                        <span class="load-value" id="loadAvg1">0.00</span>
+                    </div>
+                    <div class="load-item">
+                        <span class="load-label" translate="yes">Load Average (5 min)</span>
+                        <span class="load-value" id="loadAvg5">0.00</span>
+                    </div>
+                    <div class="load-item">
+                        <span class="load-label" translate="yes">Load Average (15 min)</span>
+                        <span class="load-value" id="loadAvg15">0.00</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="sec-memory">
+                <div class="section-header">
+                    <h1 translate="yes">Memory</h1>
+                </div>
+
+                <div class="memory-overview">
+                    <div class="memory-card">
+                        <div class="memory-header">
+                            <h3 translate="yes">Physical Memory</h3>
+                        </div>
+                        <div class="memory-bar-container">
+                            <div class="memory-bar" id="memBar">
+                                <div class="memory-bar-used" id="memBarUsed"></div>
+                                <div class="memory-bar-cached" id="memBarCached"></div>
+                            </div>
+                            <div class="memory-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color legend-used"></span>
+                                    <span translate="yes">Used</span>: <span id="memUsed">0 GB</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color legend-cached"></span>
+                                    <span translate="yes">Cached</span>: <span id="memCached">0 GB</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color legend-free"></span>
+                                    <span translate="yes">Free</span>: <span id="memFree">0 GB</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="memory-details">
+                            <div class="memory-summary">
+                                <div class="detail-row">
+                                    <span translate="yes">Total</span>: <span id="memTotal">0 GB</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span translate="yes">Available</span>: <span id="memAvailable">0 GB</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span translate="yes">Buffers</span>: <span id="memBuffers">0 GB</span>
+                                </div>
+                            </div>
+                            <div class="hw-info-grid">
+                                <div class="hw-info-item"><span class="hw-label" translate="yes">Dirty</span><span class="hw-value" id="memDirty">0 MB</span></div>
+                                <div class="hw-info-item"><span class="hw-label" translate="yes">Writeback</span><span class="hw-value" id="memWriteback">0 MB</span></div>
+                                <div class="hw-info-item"><span class="hw-label" translate="yes">AnonPages</span><span class="hw-value" id="memAnonPages">0 MB</span></div>
+                                <div class="hw-info-item"><span class="hw-label" translate="yes">Mapped</span><span class="hw-value" id="memMapped">0 MB</span></div>
+                                <div class="hw-info-item"><span class="hw-label" translate="yes">Slab</span><span class="hw-value" id="memSlab">0 MB</span></div>
+                                <div class="hw-info-item"><span class="hw-label" translate="yes">Kernel Stack</span><span class="hw-value" id="memKernelStack">0 MB</span></div>
+                                <div class="hw-info-item"><span class="hw-label" translate="yes">PageTables</span><span class="hw-value" id="memPageTables">0 MB</span></div>
+                                <div class="hw-info-item"><span class="hw-label" translate="yes">HugePages</span><span class="hw-value" id="memHugePages">--</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="memory-card">
+                        <div class="memory-header">
+                            <h3 translate="yes">Swap</h3>
+                        </div>
+                        <div class="memory-bar-container">
+                            <div class="memory-bar" id="swapBar">
+                                <div class="memory-bar-used" id="swapBarUsed"></div>
+                            </div>
+                            <div class="memory-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color legend-used"></span>
+                                    <span translate="yes">Used</span>: <span id="swapUsed">0 GB</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color legend-free"></span>
+                                    <span translate="yes">Free</span>: <span id="swapFree">0 GB</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="memory-details">
+                            <div class="memory-summary">
+                                <div class="detail-row">
+                                    <span translate="yes">Total</span>: <span id="swapTotal">0 GB</span>
+                                </div>
+                            </div>
+                            <div class="hw-info-grid">
+                                <div class="hw-info-item"><span class="hw-label" translate="yes">Path</span><span class="hw-value" id="swapPath">--</span></div>
+                                <div class="hw-info-item"><span class="hw-label" translate="yes">Type</span><span class="hw-value" id="swapType">--</span></div>
+                                <div class="hw-info-item"><span class="hw-label" translate="yes">Priority</span><span class="hw-value" id="swapPriority">--</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 translate="yes">Memory Hardware</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="hw-info-grid">
+                            <div class="hw-info-item"><span class="hw-label" translate="yes">Generation</span><span class="hw-value" id="memGeneration">--</span></div>
+                            <div class="hw-info-item"><span class="hw-label" translate="yes">Channels</span><span class="hw-value" id="memChannels">--</span></div>
+                            <div class="hw-info-item"><span class="hw-label" translate="yes">Slots Used</span><span class="hw-value" id="memSlots">--</span></div>
+                            <div class="hw-info-item"><span class="hw-label" translate="yes">Voltage</span><span class="hw-value" id="memVoltage">--</span></div>
+                        </div>
+                        <div class="mem-slot-list" id="memSlotList"></div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3 translate="yes">Memory Usage History</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="memDetailChart" class="svg-chart"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section" id="sec-disk">
+                <div class="section-header">
+                    <h1 translate="yes">Disk</h1>
+                </div>
+
+                <div class="disk-grid" id="diskGrid"></div>
+            </section>
+
+            <section class="content-section" id="sec-network">
+                <div class="section-header">
+                    <h1 translate="yes">Network</h1>
+                </div>
+
+                <div class="network-grid" id="networkGrid"></div>
+            </section>
+
+            <section class="content-section" id="sec-gpu">
+                <div class="section-header">
+                    <h1 translate="yes">GPU</h1>
+                    <div class="header-actions">
+                        <span class="gpu-driver" id="gpuDriver"></span>
+                    </div>
+                </div>
+
+                <div id="gpuNoDevice" class="gpu-no-device" style="display:none">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:48px;height:48px;opacity:0.3">
+                        <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                        <line x1="6" y1="10" x2="18" y2="10"></line>
+                    </svg>
+                    <p translate="yes">No GPU detected</p>
+                </div>
+
+                <div id="gpuContent" style="display:none">
+                    <div class="stat-grid" id="gpuStatGrid"></div>
+
+                    <div class="gpu-grid" id="gpuGrid"></div>
+
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3 translate="yes">GPU Utilization History</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="gpu-history-grid" id="gpuHistoryGrid"></div>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3 translate="yes">GPU Memory</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="gpuMemChart" class="svg-chart" style="height:160px"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h3 translate="yes">GPU Processes</h3>
+                        </div>
+                        <div class="card-body">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>PID</th>
+                                        <th translate="yes">Process</th>
+                                        <th translate="yes">GPU</th>
+                                        <th translate="yes">GPU Memory</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gpuProcTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="app-footer">
+        <div class="footer-left">
+            <span translate="yes">Task Manager</span> <span id="versionDisplay">v1.4.5</span>
+        </div>
+        <div class="footer-right">
+            <span id="uptimeDisplay">Uptime: --</span>
+        </div>
+    </footer>
+
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 translate="yes">Settings</h2>
+                <button class="modal-close" id="closeSettingsBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-row">
+                    <label translate="yes">Language</label>
+                    <select id="settingLang">
+                        <option value="zh-CN">中文</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label translate="yes">Theme</label>
+                    <select id="settingTheme">
+                        <option value="light" translate="yes">Light</option>
+                        <option value="dark" translate="yes">Dark</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label translate="yes">Theme Color</label>
+                    <div class="color-picker-row" id="colorPickerRow">
+                        <div class="color-swatch active" data-color="#4f6ef7" style="background:#4f6ef7;" title="Indigo"></div>
+                        <div class="color-swatch" data-color="#8b5cf6" style="background:#8b5cf6;" title="Violet"></div>
+                        <div class="color-swatch" data-color="#ec4899" style="background:#ec4899;" title="Pink"></div>
+                        <div class="color-swatch" data-color="#ef4444" style="background:#ef4444;" title="Red"></div>
+                        <div class="color-swatch" data-color="#f59e0b" style="background:#f59e0b;" title="Amber"></div>
+                        <div class="color-swatch" data-color="#10b981" style="background:#10b981;" title="Emerald"></div>
+                        <div class="color-swatch" data-color="#06b6d4" style="background:#06b6d4;" title="Cyan"></div>
+                        <input type="color" class="color-swatch custom" id="colorCustomPicker" value="#4f6ef7" title="Custom">
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <label translate="yes">Menu Layout</label>
+                    <select id="menuLayout">
+                        <option value="side" translate="yes">Sidebar</option>
+                        <option value="top" translate="yes">Top Bar</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label translate="yes">Refresh Interval</label>
+                    <select id="refreshInterval">
+                        <option value="500">500ms</option>
+                        <option value="1000" selected>1s</option>
+                        <option value="2000">2s</option>
+                        <option value="5000">5s</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label translate="yes">Show CPU Temperature</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="showCpuTemp">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="resetSettingsBtn" translate="yes">Reset to Defaults</button>
+                <button class="btn btn-primary" id="saveSettingsBtn" translate="yes">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="lang-dropdown" id="langDropdown">
+        <div class="lang-dropdown-item active" data-lang="zh-CN">
+            <span class="lang-flag">🇨🇳</span>
+            <span>中文</span>
+            <span class="lang-check">✓</span>
+        </div>
+        <div class="lang-dropdown-item" data-lang="en">
+            <span class="lang-flag">🇺🇸</span>
+            <span>English</span>
+            <span class="lang-check">✓</span>
+        </div>
+    </div>
+
+    <div class="confirm-dialog" id="confirmDialog">
+        <div class="confirm-content">
+            <div class="confirm-icon confirm-icon-danger">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+            </div>
+            <h3 id="confirmTitle" translate="yes">Confirm Action</h3>
+            <p id="confirmMessage"></p>
+            <div class="confirm-actions">
+                <button class="btn btn-secondary" id="confirmCancelBtn" translate="yes">Cancel</button>
+                <button class="btn btn-danger" id="confirmOkBtn" translate="yes">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="proc-detail-overlay" id="procDetailOverlay">
+        <div class="proc-detail-modal">
+            <div class="proc-detail-header">
+                <h3 id="procDetailTitle">Process</h3>
+                <button class="modal-close" id="procDetailClose">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="proc-detail-body">
+                <div class="proc-detail-grid" id="procDetailGrid"></div>
+                <div id="procDetailChildren"></div>
+            </div>
+            <div class="proc-detail-footer">
+                <button class="btn btn-secondary" id="procDetailCloseBtn" translate="yes">Close</button>
+                <button class="btn btn-danger" id="procDetailKillBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-right:4px;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                    </svg>
+                    Kill Process
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+</body>
+</html>
